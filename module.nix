@@ -108,6 +108,8 @@ let
     "FUNKWHALE_FRONTEND_PATH=${cfg.dataDir}/front"
     "FUNKWHALE_PLUGINS=funkwhale_api.contrib.scrobbler"
     "TYPESENSE_API_KEY=${cfg.typesenseKey}"
+
+    "THROTTLING_ENABLED=${lib.boolToString cfg.api.throttling.enable}"
   ];
   funkwhaleEnvFileData = builtins.concatStringsSep "\n" funkwhaleEnvironment;
   funkwhaleEnvScriptData = builtins.concatStringsSep " " funkwhaleEnvironment;
@@ -318,6 +320,16 @@ in
             '';
           };
 
+          throttling = {
+            enable = mkOption {
+              type = types.bool;
+              default = true;
+              description = ''
+                Whether or not to enable request rate-limiting.
+              '';
+            };
+          };
+
           djangoSecretKeyFile = mkOption {
             type = types.str;
             default = "/run/secrets/funkwhale_django_secret";
@@ -334,7 +346,6 @@ in
             In-place import settings.
           '';
         };
-
       };
     };
 
