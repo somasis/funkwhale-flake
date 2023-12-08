@@ -1,0 +1,48 @@
+diffapi/funkwhale_api/common/serializers.py mod/api/funkwhale_api/common/serializers.py
+--- a/api/funkwhale_api/common/serializers.py	2023-12-08 00:51:10.912521225 -0500
++++ b/api/funkwhale_api/common/serializers.py	2023-12-08 00:50:58.856255558 -0500
+@@ -6,7 +6,7 @@
+ from django.core.exceptions import ObjectDoesNotExist
+ from django.core.files.uploadedfile import SimpleUploadedFile
+ from django.utils.encoding import smart_text
+-from django.utils.translation import ugettext_lazy as _
++from django.utils.translation import gettext_lazy as _
+ from drf_spectacular.types import OpenApiTypes
+ from drf_spectacular.utils import extend_schema_field
+ from rest_framework import serializers
+diffapi/funkwhale_api/common/validators.py mod/api/funkwhale_api/common/validators.py
+--- a/api/funkwhale_api/common/validators.py	2023-12-08 00:51:10.912521225 -0500
++++ b/api/funkwhale_api/common/validators.py	2023-12-08 00:50:58.858255603 -0500
+@@ -6,7 +6,7 @@
+ from django.core.files.images import get_image_dimensions
+ from django.template.defaultfilters import filesizeformat
+ from django.utils.deconstruct import deconstructible
+-from django.utils.translation import ugettext_lazy as _
++from django.utils.translation import gettext_lazy as _
+ 
+ 
+ @deconstructible
+diffapi/funkwhale_api/users/admin.py mod/api/funkwhale_api/users/admin.py
+--- a/api/funkwhale_api/users/admin.py	2023-12-08 00:51:10.907521117 -0500
++++ b/api/funkwhale_api/users/admin.py	2023-12-08 00:50:58.860255648 -0500
+@@ -1,7 +1,7 @@
+ from django import forms
+ from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
+ from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+-from django.utils.translation import ugettext_lazy as _
++from django.utils.translation import gettext_lazy as _
+ 
+ from funkwhale_api.common import admin
+ 
+diffapi/funkwhale_api/users/models.py mod/api/funkwhale_api/users/models.py
+--- a/api/funkwhale_api/users/models.py	2023-12-08 00:51:10.907521117 -0500
++++ b/api/funkwhale_api/users/models.py	2023-12-08 00:50:58.862255693 -0500
+@@ -12,7 +12,7 @@
+ from django.dispatch import receiver
+ from django.urls import reverse
+ from django.utils import timezone
+-from django.utils.translation import ugettext_lazy as _
++from django.utils.translation import gettext_lazy as _
+ from django_auth_ldap.backend import populate_user as ldap_populate_user
+ from oauth2_provider import models as oauth2_models
+ from oauth2_provider import validators as oauth2_validators

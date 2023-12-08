@@ -1,11 +1,11 @@
 {
   description = "Funkwhale";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.05";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
 
   outputs = { self, nixpkgs }:
     let
-      version = "1.3.3";
+      version = "1.3.4";
       systems = [ "x86_64-linux" "i686-linux" "aarch64-linux" ];
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
       # Memoize nixpkgs for different platforms for efficiency.
@@ -18,7 +18,6 @@
     in
     {
       overlays.default = final: prev: {
-
         funkwhale-front = with final; stdenv.mkDerivation {
           pname = "funkwhale-front";
           inherit version;
@@ -29,7 +28,7 @@
           src = fetchurl {
             url =
               "https://dev.funkwhale.audio/funkwhale/funkwhale/-/jobs/artifacts/${version}/download?job=build_front";
-            sha256 = "sha256-0DOcTkKKU+REoMTJQW11hrrND88eTQ2+tIuQRzxa0rw=";
+            sha256 = "sha256-+/DSUVPdFvnJpw5rsrFSOKCRqayzb8HcLidm92HyoXw=";
           };
 
           installPhase = ''
@@ -43,10 +42,10 @@
           inherit version;
           src = fetchurl {
             url = "https://dev.funkwhale.audio/funkwhale/funkwhale/-/archive/${version}/funkwhale-${version}.tar.bz2";
-            sha256 = "sha256-bcJMY0Ndnlq5hKJVYMO/qwckYTZtABhDJem2C9E/zB4=";
+            sha256 = "sha256-W3pGCI+x1MMh7Q4nggdPdpgRYDckc4By7w0dxCNmnUI=";
           };
 
-          patches = [ ./funkwhale.patch ];
+          patches = [ ./funkwhale.patch ./funkwhale-django.patch ];
 
           installPhase = ''
             sed "s|env -S|env|g" -i front/scripts/*.sh
@@ -63,6 +62,54 @@
           };
         });
 
+        # ------------- backported versions -------------------
+        django-allauth = with final; with pkgs.python3.pkgs; (buildPythonPackage rec {
+          pname = "django-allauth";
+          version = "0.51.0";
+          format = "setuptools";
+
+          disabled = pythonOlder "3.7";
+
+          src = fetchFromGitHub {
+            owner = "pennersr";
+            repo = pname;
+            rev = version;
+            hash = "sha256-o8EoayMMwxoJTrUA3Jo1Dfu1XFgC+Mcpa8yMwXlKAKY=";
+          };
+
+          postPatch = ''
+            chmod +x manage.py
+            patchShebangs manage.py
+          '';
+
+          propagatedBuildInputs = [
+            django_3
+            python3-openid
+            pyjwt
+            requests
+            requests-oauthlib
+          ]
+          ++ pyjwt.optional-dependencies.crypto;
+
+          checkPhase = ''
+            # test is out of date
+            rm allauth/socialaccount/providers/cern/tests.py
+
+            ./manage.py test
+          '';
+
+          pythonImportsCheck = [
+            "allauth"
+          ];
+
+          meta = with lib; {
+            description = "Integrated set of Django applications addressing authentication, registration, account management as well as 3rd party (social) account authentication";
+            homepage = "https://www.intenct.nl/projects/django-allauth";
+            license = licenses.mit;
+            maintainers = with maintainers; [ SuperSandro2000 ];
+          };
+        });
+
         # ------------- new packages -------------------
 
         requests-http-message-signatures = with final; with pkgs.python3.pkgs; (buildPythonPackage rec {
@@ -75,7 +122,6 @@
           propagatedBuildInputs = [ requests cryptography ];
           doCheck = false;
         });
-
 
         django-cache-memoize = with final; with pkgs.python3.pkgs; (buildPythonPackage rec {
           pname = "django-cache-memoize";
@@ -250,7 +296,6 @@
             maintainers = with maintainers; [ fab ];
           };
         });
-
       };
 
 
@@ -264,6 +309,5 @@
 
       # funkwhale service module
       nixosModules.default = (import ./module.nix);
-
     };
 }
